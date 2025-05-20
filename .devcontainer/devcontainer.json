@@ -1,0 +1,16 @@
+// .devcontainer/devcontainer.json
+{
+  "name": "my-project-dev",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",                  // VS Code 只連到 app
+  "workspaceFolder": "/workspace",
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash"
+  },
+  "forwardPorts": [4000, 27017],
+  "postCreateCommand": "npm install",
+  "extensions": [
+    "mongodb.mongodb-vscode",
+    "esbenp.prettier-vscode"
+  ]
+}

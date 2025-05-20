@@ -1,0 +1,27 @@
+# .devcontainer/docker-compose.yml
+version: '3.9'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile   # 下面會寫
+    volumes:
+      - ..:/workspace                         # 把專案掛進容器
+    command: sleep infinity                  # 保持容器存活讓你開 shell
+    environment:
+      - MONGO_URI=mongodb://db:27017/factory
+    ports:
+      - "4000:4000"      # Express
+    depends_on:
+      - db
+
+  db:
+    image: mongo:7.0      # 官方 library 映像 :contentReference[oaicite:1]{index=1}
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+volumes:
+  mongo-data:
