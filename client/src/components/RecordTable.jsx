@@ -1,6 +1,7 @@
 import {useEffect,useState} from 'react';
 import api from '../api';
 import RecordForm from './RecordForm';
+import {LineChart,Line,XAxis,YAxis,Tooltip,CartesianGrid} from 'recharts';
 
 export default function RecordTable(){
   const [rows,setRows]=useState([]);
@@ -22,6 +23,14 @@ export default function RecordTable(){
           </tr>))}
         </tbody>
       </table>
+      <LineChart width={600} height={250} data={rows}>
+        <CartesianGrid stroke="#555"/>
+        <XAxis dataKey="date" tickFormatter={d=>new Date(d).toLocaleDateString()}/>
+        <YAxis/>
+        <Tooltip/>
+        <Line dataKey="quantity" stroke="#82ca9d"/>
+      </LineChart>
+
     </div>
   );
 }
