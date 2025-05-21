@@ -1,3 +1,4 @@
+/* client/src/components/RecordTable.jsx */
 import { useEffect, useState, useMemo } from 'react';
 import api from '../api';
 import RecordForm from './RecordForm';
@@ -14,26 +15,36 @@ import {
   Legend,
 } from 'recharts';
 
+const fmtDate = (d) => {
+  if (!d) return '';
+  // 字串直接 slice；Date 物件轉 ISO 再 slice
+  return typeof d === 'string'
+    ? d.slice(0, 10)
+    : new Date(d).toISOString().slice(0, 10);
+};
+
 export default function RecordTable() {
-  /** 資料狀態 */
+  /* ───────── state ───────── */
   const [rows, setRows] = useState([]);
-  /** 搜尋與篩選 */
   const [keyword, setKeyword] = useState('');
   const [shiftFilter, setShiftFilter] = useState('all');
-  /** 編輯模式 */
   const [editing, setEditing] = useState(null);
 
-  /** 讀資料 */
+  /* ───────── API ───────── */
   const refresh = () =>
     api.get('/records').then((r) => setRows(r.data));
-  useEffect(() => { refresh(); }, []);
+
+  /* call refresh once on mount (no promise returned!) */
+  useEffect(() => {
+    refresh();
+  }, []);
 
   const destroy = async (id) => {
     await api.delete(`/records/${id}`);
     refresh();
   };
 
-  /** 依搜尋 / 篩選產生新陣列 */
+  /* ───────── derived data: 搜尋＋班別篩選 ───────── */
   const filtered = useMemo(() => {
     return rows.filter((r) => {
       const matchKey =
@@ -46,28 +57,29 @@ export default function RecordTable() {
     });
   }, [rows, keyword, shiftFilter]);
 
+  /* ───────── UI ───────── */
   return (
     <div className="p-6 space-y-6">
-      {/* 表單（新增 or 編輯） */}
+      {/* 表單（新增或編輯） */}
       <RecordForm
         refresh={refresh}
         editing={editing}
         onDone={() => setEditing(null)}
       />
 
-      {/* 搜尋／篩選列 */}
+      {/* 搜尋 / 篩選列 */}
       <div className="flex flex-wrap gap-4 items-end">
         <input
+          className="border px-2 py-1"
           placeholder="搜尋產品 / 產線"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          className="border px-2 py-1"
         />
 
         <select
+          className="border px-2 py-1"
           value={shiftFilter}
           onChange={(e) => setShiftFilter(e.target.value)}
-          className="border px-2 py-1"
         >
           <option value="all">全部班別</option>
           {['A', 'B', 'C'].map((s) => (
@@ -80,10 +92,10 @@ export default function RecordTable() {
         </span>
       </div>
 
-      {/* 資料表格 */}
+      {/* 表格 */}
       <table className="min-w-full text-sm text-left text-gray-200 border border-gray-600">
-        <thead>
-          <tr className="bg-slate-700">
+        <thead className="bg-slate-700">
+          <tr>
             <th className="px-2">日期</th>
             <th className="px-2">線</th>
             <th className="px-2">產品</th>
@@ -96,9 +108,7 @@ export default function RecordTable() {
         <tbody>
           {filtered.map((r) => (
             <tr key={r._id} className="border-t border-gray-600">
-              <td className="px-2">
-                {r.date.slice(0,10)}
-              </td>
+              <td className="px-2">{fmtDate(r.date)}</td>
               <td className="px-2">{r.line}</td>
               <td className="px-2">{r.product}</td>
               <td className="px-2">{r.shift}</td>
@@ -125,8 +135,9 @@ export default function RecordTable() {
         </tbody>
       </table>
 
-      {/* 圖表：左折線圖（產量） - 右長條圖（不良率） */}
+      {/* 圖表區 */}
       <div className="flex flex-col md:flex-row gap-8">
+        {/* 產量折線圖 */}
         <LineChart
           width={420}
           height={260}
@@ -136,9 +147,7 @@ export default function RecordTable() {
           <CartesianGrid stroke="#555" />
           <XAxis
             dataKey="date"
-            tickFormatter={(d) =>
-              new Date(d).toLocaleDateString()
-            }
+            tickFormatter={(d) => d.slice(5)} /* 顯示 MM-DD */
           />
           <YAxis />
           <Tooltip />
@@ -151,6 +160,7 @@ export default function RecordTable() {
           />
         </LineChart>
 
+        {/* 不良率長條圖 */}
         <BarChart
           width={420}
           height={260}
@@ -160,9 +170,7 @@ export default function RecordTable() {
           <CartesianGrid stroke="#555" />
           <XAxis
             dataKey="date"
-            tickFormatter={(d) =>
-              new Date(d).toLocaleDateString()
-            }
+            tickFormatter={(d) => d.slice(5)}
           />
           <YAxis
             tickFormatter={(v) => (v * 100).toFixed(0) + '%'}

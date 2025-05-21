@@ -93,7 +93,7 @@ export default function RecordForm({ refresh, editing, onDone }) {
 
       <div className="space-x-2">
         <button className="bg-emerald-600 text-white px-4 py-1 rounded">
-          💾 儲存
+           儲存
         </button>
         {editing && (
           <button
