@@ -97,7 +97,7 @@ export default function RecordTable() {
           {filtered.map((r) => (
             <tr key={r._id} className="border-t border-gray-600">
               <td className="px-2">
-                {new Date(r.date).toLocaleDateString()}
+                {r.date.slice(0,10)}
               </td>
               <td className="px-2">{r.line}</td>
               <td className="px-2">{r.product}</td>
