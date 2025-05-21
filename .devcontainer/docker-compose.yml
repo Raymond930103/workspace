@@ -4,16 +4,22 @@ services:
   app:
     build:
       context: .
-      dockerfile: .devcontainer/Dockerfile   # 下面會寫
+      dockerfile: Dockerfile   # 下面會寫
     volumes:
       - ..:/workspace                         # 把專案掛進容器
-    command: sleep infinity                  # 保持容器存活讓你開 shell
+    command: bash -c "while sleep 3600; do :; done"                 # 保持容器存活讓你開 shell
     environment:
       - MONGO_URI=mongodb://db:27017/factory
     ports:
       - "4000:4000"      # Express
     depends_on:
       - db
+
+  client:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./client/dist:/usr/share/nginx/html:ro
+    ports: ["80:80"]
 
   db:
     image: mongo:7.0      # 官方 library 映像 :contentReference[oaicite:1]{index=1}

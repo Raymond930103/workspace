@@ -1,0 +1,6 @@
+# .devcontainer/Dockerfile
+FROM node:22-bookworm
+
+# 為了好看，用非 root 也行；此例圖方便用 root
+RUN npm i -g nodemon
+WORKDIR /workspace
